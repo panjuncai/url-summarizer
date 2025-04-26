@@ -12,9 +12,15 @@
   "app": {
     "windows": [
       {
-        "title": "url-summarizer",
+        "title": "URL智能摘要工具",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "resizable":true,
+        "decorations": true,
+        "center": true,
+        "alwaysOnTop":false,
+        "transparent": true,
+        "theme": "Light"
       }
     ],
     "security": {
