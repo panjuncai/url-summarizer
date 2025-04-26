@@ -108,7 +108,7 @@ async fn summarize_with_ai(content: &str) -> Result<String, FetchError> {
         messages: vec![
             Message {
                 role: "system",
-                content: "你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的格式返回。",
+                content: "你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。",
             },
             Message {
                 role: "user",
