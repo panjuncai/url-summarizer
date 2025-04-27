@@ -28,3 +28,4 @@ tokio = { version = "1", features = ["full"] }
 html2text = "0.12"
 regex = "1.10"
 dotenv = "0.15"
+tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v2" }

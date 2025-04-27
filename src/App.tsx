@@ -4,15 +4,17 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import { SettingsDialog } from './components/SettingsDialog'
 
 function App() {
   const [url, setUrl] = useState("");
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleSummarize = async () => {
     if (!url.startsWith("http")) {
-      toast.error("❌ 请输入有效的网址（以 http 或 https 开头）");
+      toast.error("请输入有效的网址（以 http 或 https 开头）");
       return;
     }
 
@@ -92,6 +94,25 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* 底部配置栏 */}
+      <div className="h-8 bg-gray-100 border-t border-gray-200 flex items-center px-4 justify-end gap-2">
+        <div className="text-xs text-gray-500">
+          Powered by OpenAI
+        </div>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="text-gray-600 hover:text-gray-800"
+          title="设置"
+        >
+          ⚙️
+        </button>
+      </div>
+
+      <SettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }

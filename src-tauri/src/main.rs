@@ -11,6 +11,10 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::env;
 use dotenv::dotenv;
+use tauri::{Manager, Runtime};
+use tauri_plugin_store::{StoreBuilder, StoreExt};
+use serde_json::{json, Value};
+
 
 #[derive(Debug)]
 enum FetchError {
@@ -98,13 +102,37 @@ struct MessageContent {
     content: String,
 }
 
-async fn summarize_with_ai(content: &str) -> Result<String, FetchError> {
-    let api_key = env::var("OPENAI_API_KEY").map_err(|_| FetchError::AiRequestFailed("未找到API密钥".to_string()))?;
+async fn summarize_with_ai<R: Runtime>(app: tauri::AppHandle<R>, content: &str) -> Result<String, FetchError> {
+    // 尝试从存储中读取设置
+    let store = app.store("settings.json").map_err(|e| {
+        println!("获取存储失败: {:?}", e);
+        FetchError::AiRequestFailed("获取存储失败".to_string())
+    })?;
+
+    let api_key = store.get("apiKey")
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .ok_or_else(|| {
+            println!("API Key 未设置");
+            FetchError::AiRequestFailed("未设置API Key".to_string())
+        })?;
+    
+    let api_model = store.get("apiModel")
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .unwrap_or_else(|| "gpt-4o".to_string());
+
+    let api_url = store.get("apiUrl")
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .unwrap_or_else(|| "https://api.openai.com".to_string());
+
+    let api_path = store.get("apiPath")
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+        .unwrap_or_else(|| "/v1/chat/completions".to_string());
+
+    println!("使用的API设置 - Model: {}, URL: {}, Path: {}", api_model, api_url, api_path);
 
     let client = Client::new();
-
     let request_body = OpenAIRequest {
-        model: "gpt-4o", // 你可以换成gpt-4-turbo或者gpt-3.5-turbo
+        model: &api_model,
         messages: vec![
             Message {
                 role: "system",
@@ -118,7 +146,10 @@ async fn summarize_with_ai(content: &str) -> Result<String, FetchError> {
         temperature: 0.5,
     };
 
-    let res = client.post("https://api.openai.com/v1/chat/completions")
+    let full_url = format!("{}{}", api_url, api_path);
+    println!("发送请求到: {}", full_url);
+
+    let res = client.post(full_url)
         .bearer_auth(api_key)
         .json(&request_body)
         .send()
@@ -137,8 +168,8 @@ async fn summarize_with_ai(content: &str) -> Result<String, FetchError> {
 }
 
 #[command]
-async fn fetch_url_main_content(url: String) -> Result<String, String> {
-    dotenv().ok(); // 加载.env环境变量
+async fn fetch_url_main_content<R: Runtime>(app: tauri::AppHandle<R>, url: String) -> Result<String, String> {
+    dotenv().ok();
 
     let client = Client::new();
     let res = client.get(&url)
@@ -154,21 +185,22 @@ async fn fetch_url_main_content(url: String) -> Result<String, String> {
         .await
         .map_err(|e| FetchError::HtmlParse(e.to_string()).to_user_message())?;
 
-    // 将HTML解析和文本提取移到一个阻塞任务中执行
     let cleaned_content = tokio::task::spawn_blocking(move || {
         let _html_doc = Html::parse_document(&body);
         let content = from_read(body.as_bytes(), body.len());
         clean_content(content)
     }).await.map_err(|e| FetchError::Unknown(e.to_string()).to_user_message())?;
 
-    let summary = summarize_with_ai(&cleaned_content)
+    let summary = summarize_with_ai(app, &cleaned_content)
         .await
         .map_err(|e| e.to_user_message())?;
 
     Ok(summary)
 }
+
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![fetch_url_main_content])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
