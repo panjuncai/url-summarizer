@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Store } from "@tauri-apps/plugin-store";
 import { toast } from "react-hot-toast";
-import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
-import { Button, Input, Select, Modal, Form, Space, Radio } from "antd";
+import { EyeInvisibleOutlined, EyeOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Button, Input, Select, Modal, Form, Space, Radio, Typography } from "antd";
 
 interface SettingsDialogProps {
   isOpen: boolean;
@@ -192,25 +192,53 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           />
         </Form.Item>
 
-        <Form.Item label="提示词1">
-          <Input.TextArea
-            value={settings.apiScript[0]}
-            onChange={(e) =>
-              setSettings({ ...settings, apiScript: [e.target.value, settings.apiScript[1]] })
-            }
-            placeholder="请输入提示词..."
-            rows={2}
-          />
-        </Form.Item>
-        <Form.Item label="提示词2">
-          <Input.TextArea
-            value={settings.apiScript[1]}
-            onChange={(e) =>
-              setSettings({ ...settings, apiScript: [settings.apiScript[0], e.target.value] })
-            }
-            placeholder="请输入提示词..."
-            rows={2}
-          />
+        <Form.Item label="提示词" required>
+          {settings.apiScript.map((script, index) => (
+            <div key={index} style={{ marginBottom: index !== settings.apiScript.length - 1 ? 16 : 0 }}>
+              <Space.Compact block>
+                <Input.TextArea
+                  value={script}
+                  onChange={(e) => {
+                    const newApiScript = [...settings.apiScript];
+                    newApiScript[index] = e.target.value;
+                    setSettings({ ...settings, apiScript: newApiScript });
+                  }}
+                  placeholder="请输入提示词..."
+                  rows={2}
+                  style={{ borderRadius: index === 0 ? undefined : '6px' }}
+                />
+                {index !== 0 && (
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                      const newApiScript = settings.apiScript.filter((_, i) => i !== index);
+                      setSettings({ ...settings, apiScript: newApiScript });
+                    }}
+                  />
+                )}
+              </Space.Compact>
+              {index === 0 && (
+                <Typography.Text type="secondary" style={{ fontSize: 12, marginTop: 4 }}>
+                  这是默认提示词，不可删除
+                </Typography.Text>
+              )}
+            </div>
+          ))}
+          <Button
+            type="dashed"
+            onClick={() => {
+              setSettings({
+                ...settings,
+                apiScript: [...settings.apiScript, ""]
+              });
+            }}
+            icon={<PlusOutlined />}
+            style={{ width: '100%', marginTop: 8 }}
+          >
+            添加提示词
+          </Button>
         </Form.Item>
       </Form>
     </Modal>

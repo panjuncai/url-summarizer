@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { SettingOutlined, FileTextOutlined } from "@ant-design/icons";
-import { Button, Modal, Tabs, Input, Spin, Select, Space } from "antd";
+import { Button, Modal, Tabs, Input, Spin, Select, Space, Tooltip } from "antd";
 import { Store } from "@tauri-apps/plugin-store";
 interface Settings {
   defaultTab: string;
@@ -71,7 +71,7 @@ function App() {
       }
     }
 
-    if(!currentScript) {
+    if (!currentScript) {
       toast.error("请选择提示词");
       return;
     }
@@ -87,7 +87,10 @@ function App() {
         setOriginalContent(content);
 
         // 生成摘要
-        const summary = await invoke<string>("generate_summary", { content, script: currentScript });
+        const summary = await invoke<string>("generate_summary", {
+          content,
+          script: currentScript,
+        });
         setSummary(summary);
       } else {
         // 直接使用输入的文本
@@ -237,34 +240,40 @@ function App() {
       {/* 底部配置栏 */}
 
       <div className="h-10 bg-gray-100 border-t border-gray-200 flex items-center px-4 justify-between gap-2">
-        <div
-          className="flex items-center gap-2 hover:cursor-pointer"
-          onClick={() =>
-            Modal.info({
-              title: "原始内容",
-              content: <div>{originalContent}</div>,
-            })
-          }
-        >
-          <FileTextOutlined style={{ fontSize: 18 }} />
-          <div className="text-xs text-gray-500">原始内容</div>
-        </div>
-
         <Space direction="horizontal">
-            <label className="text-xs text-gray-500">提示词:</label>
-            <Select style={{ width: 300 }} value={currentScript} onChange={handleScriptChange}>
-              {settings.apiScript.map((script) => (
-                <Select.Option value={script}>{script}</Select.Option>
-              ))}
-            </Select>
-            <div className="text-xs text-gray-500">Powered by OpenAI</div>
-            <button
+          <label className="text-md text-gray-500">提示词:</label>
+          <Select
+            style={{ width: 300 }}
+            value={currentScript}
+            onChange={handleScriptChange}
+          >
+            {settings.apiScript.map((script) => (
+              <Select.Option value={script}>{script}</Select.Option>
+            ))}
+          </Select>
+          <Tooltip title="原始内容">
+            <Button
+              type="text"
+              icon={<FileTextOutlined />}
+              onClick={() =>
+                Modal.info({
+                  title: "原始内容",
+                  content: <div>{originalContent}</div>,
+                })
+              }
+            />
+          </Tooltip>
+        </Space>
+
+        <Space direction="horizontal" size={0}>
+          <div className="text-xs text-gray-500">Powered by OpenAI</div>
+          <Tooltip title="设置">
+            <Button
+              type="text"
+              icon={<SettingOutlined />}
               onClick={() => setIsSettingsOpen(true)}
-              className="text-gray-600 hover:text-gray-800"
-              title="设置"
-            >
-              <SettingOutlined style={{ fontSize: 18 }} />
-            </button>
+            />
+          </Tooltip>
         </Space>
 
         <SettingsDialog
