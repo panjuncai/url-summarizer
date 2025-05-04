@@ -160,13 +160,13 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           />
         </Form.Item>
 
-        <Form.Item label="话术">
+        <Form.Item label="提示词">
           <Input.TextArea
             value={settings.apiScript}
             onChange={(e) =>
               setSettings({ ...settings, apiScript: e.target.value })
             }
-            placeholder="话术"
+            placeholder="请输入提示词..."
             rows={2}
           />
         </Form.Item>
