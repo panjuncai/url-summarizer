@@ -130,7 +130,7 @@ function App() {
                     <Input
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      placeholder="请输入网页链接..."
+                      placeholder="请输入网页链接爬取后进行AI分析..."
                       className="flex-1"
                     />
                     <Button onClick={() => setUrl("")} type="default">
