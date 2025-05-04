@@ -6,10 +6,11 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { SettingOutlined, FileTextOutlined } from "@ant-design/icons";
-import { Button, Modal, Tabs, Input, Spin } from "antd";
+import { Button, Modal, Tabs, Input, Spin, Select, Space } from "antd";
 import { Store } from "@tauri-apps/plugin-store";
 interface Settings {
-  defaultTab: string
+  defaultTab: string;
+  apiScript: string[];
 }
 
 let store: Store | null = null;
@@ -23,12 +24,15 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [inputType, setInputType] = useState("url"); // 'url' or 'text'
   const [settings, setSettings] = useState<Settings>({
-    defaultTab: "url"
+    defaultTab: "url",
+    apiScript: [],
   });
+  const [currentScript, setCurrentScript] = useState<string>();
+
   useEffect(() => {
-      initializeStore();
+    initializeStore();
   }, [isSettingsOpen]);
-  
+
   async function initializeStore() {
     if (!store) {
       store = await Store.load("settings.json");
@@ -40,13 +44,19 @@ function App() {
     try {
       if (!store) return;
       const defaultTab = ((await store.get("defaultTab")) as string) || "url";
-      setSettings({ defaultTab });
+      const apiScript = ((await store.get("apiScript")) as string[]) || [];
+      setSettings({ defaultTab, apiScript });
       setInputType(defaultTab);
+      setCurrentScript(apiScript[0]);
     } catch (error) {
       console.error("加载设置失败:", error);
       toast.error("加载设置失败");
     }
   }
+
+  const handleScriptChange = (value: string) => {
+    setCurrentScript(value);
+  };
 
   const handleSummarize = async () => {
     if (inputType === "url") {
@@ -61,6 +71,11 @@ function App() {
       }
     }
 
+    if(!currentScript) {
+      toast.error("请选择提示词");
+      return;
+    }
+
     setLoading(true);
     setSummary("");
     setOriginalContent("");
@@ -72,13 +87,14 @@ function App() {
         setOriginalContent(content);
 
         // 生成摘要
-        const summary = await invoke<string>("generate_summary", { content });
+        const summary = await invoke<string>("generate_summary", { content, script: currentScript });
         setSummary(summary);
       } else {
         // 直接使用输入的文本
         setOriginalContent(text);
         const summary = await invoke<string>("generate_summary", {
           content: text,
+          script: currentScript,
         });
         setSummary(summary);
       }
@@ -220,9 +236,9 @@ function App() {
 
       {/* 底部配置栏 */}
 
-      <div className="h-8 bg-gray-100 border-t border-gray-200 flex items-center px-4 justify-between gap-2">
+      <div className="h-10 bg-gray-100 border-t border-gray-200 flex items-center px-4 justify-between gap-2">
         <div
-          className="flex item-center gap-2 hover:cursor-pointer"
+          className="flex items-center gap-2 hover:cursor-pointer"
           onClick={() =>
             Modal.info({
               title: "原始内容",
@@ -233,16 +249,23 @@ function App() {
           <FileTextOutlined style={{ fontSize: 18 }} />
           <div className="text-xs text-gray-500">原始内容</div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="text-xs text-gray-500">Powered by OpenAI</div>
-          <button
-            onClick={() => setIsSettingsOpen(true)}
-            className="text-gray-600 hover:text-gray-800"
-            title="设置"
-          >
-            <SettingOutlined style={{ fontSize: 18 }} />
-          </button>
-        </div>
+
+        <Space direction="horizontal">
+            <label className="text-xs text-gray-500">提示词:</label>
+            <Select style={{ width: 300 }} value={currentScript} onChange={handleScriptChange}>
+              {settings.apiScript.map((script) => (
+                <Select.Option value={script}>{script}</Select.Option>
+              ))}
+            </Select>
+            <div className="text-xs text-gray-500">Powered by OpenAI</div>
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="text-gray-600 hover:text-gray-800"
+              title="设置"
+            >
+              <SettingOutlined style={{ fontSize: 18 }} />
+            </button>
+        </Space>
 
         <SettingsDialog
           isOpen={isSettingsOpen}

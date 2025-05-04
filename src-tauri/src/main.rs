@@ -102,7 +102,7 @@ struct MessageContent {
     content: String,
 }
 
-async fn summarize_with_ai<R: Runtime>(app: tauri::AppHandle<R>, content: &str) -> Result<String, FetchError> {
+async fn summarize_with_ai<R: Runtime>(app: tauri::AppHandle<R>, content: &str, script: &str) -> Result<String, FetchError> {
     // 尝试从存储中读取设置
     let store = app.store("settings.json").map_err(|e| {
         println!("获取存储失败: {:?}", e);
@@ -128,9 +128,6 @@ async fn summarize_with_ai<R: Runtime>(app: tauri::AppHandle<R>, content: &str) 
         .and_then(|v| v.as_str().map(|s| s.to_string()))
         .unwrap_or_else(|| "/v1/chat/completions".to_string());
 
-    let api_script = store.get("apiScript")
-        .and_then(|v| v.as_str().map(|s| s.to_string()))
-        .unwrap_or_else(|| "你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。".to_string());
 
     println!("使用的API设置 - Model: {}, URL: {}, Path: {}", api_model, api_url, api_path);
 
@@ -140,7 +137,7 @@ async fn summarize_with_ai<R: Runtime>(app: tauri::AppHandle<R>, content: &str) 
         messages: vec![
             Message {
                 role: "system",
-                content: &api_script,
+                content: &script,
             },
             Message {
                 role: "user",
@@ -199,8 +196,8 @@ async fn fetch_url_main_content<R: Runtime>(_app: tauri::AppHandle<R>, url: Stri
 }
 
 #[command]
-async fn generate_summary<R: Runtime>(app: tauri::AppHandle<R>, content: String) -> Result<String, String> {
-    summarize_with_ai(app, &content)
+async fn generate_summary<R: Runtime>(app: tauri::AppHandle<R>, content: String, script: String) -> Result<String, String> {
+    summarize_with_ai(app, &content, &script)
         .await
         .map_err(|e| e.to_user_message())
 }
