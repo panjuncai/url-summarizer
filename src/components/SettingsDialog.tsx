@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Store } from "@tauri-apps/plugin-store";
 import { toast } from "react-hot-toast";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
-import { Button, Input, Select, Modal, Form, Space } from "antd";
+import { Button, Input, Select, Modal, Form, Space, Radio } from "antd";
 
 interface SettingsDialogProps {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface SettingsDialogProps {
 }
 
 interface Settings {
+  defaultTab: string;
   apiKey: string;
   apiModel: string;
   apiUrl: string;
@@ -21,6 +22,7 @@ let store: Store | null = null;
 
 export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
   const [settings, setSettings] = useState<Settings>({
+    defaultTab: "url",
     apiKey: "",
     apiModel: "gpt-4o-mini",
     apiUrl: "https://api.openai.com",
@@ -46,6 +48,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
   async function loadSettings() {
     try {
       if (!store) return;
+      const defaultTab = ((await store.get("defaultTab")) as string) || "url";
       const apiKey = ((await store.get("apiKey")) as string) || "";
       const apiModel =
         ((await store.get("apiModel")) as string) || "gpt-4o-mini";
@@ -56,7 +59,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       const apiScript =
         ((await store.get("apiScript")) as string) ||
         "你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。";
-      setSettings({ apiKey, apiModel, apiUrl, apiPath, apiScript });
+      setSettings({ defaultTab, apiKey, apiModel, apiUrl, apiPath, apiScript });
     } catch (error) {
       console.error("加载设置失败:", error);
       toast.error("加载设置失败");
@@ -66,6 +69,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
   async function handleSave() {
     try {
       if (!store) return;
+      await store.set("defaultTab", settings.defaultTab);
       await store.set("apiKey", settings.apiKey);
       await store.set("apiModel", settings.apiModel);
       await store.set("apiUrl", settings.apiUrl);
@@ -82,7 +86,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
 
   return (
     <Modal
-      title="API 设置"
+      title="系统设置"
       open={isOpen}
       onCancel={onClose}
       footer={[
@@ -95,6 +99,24 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       ]}
     >
       <Form layout="horizontal" labelCol={{ span: 4 }}>
+        <Form.Item label="默认标签">
+          <Radio.Group
+            value={settings.defaultTab}
+            onChange={(e) =>
+              setSettings({ ...settings, defaultTab: e.target.value })
+            }
+            options={[
+              {
+                value: "url",
+                label: <div>网址</div>,
+              },
+              {
+                value: "text",
+                label: <div>文本</div>,
+              },
+            ]}
+          />
+        </Form.Item>
         <Form.Item label="API Key">
           <div className="relative">
             <Input
@@ -118,9 +140,17 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
         <Form.Item label="API Model">
           <Space.Compact block>
             <Select
-              value={settings.apiModel === "gpt-4o" || settings.apiModel === "gpt-4o-mini" ? settings.apiModel : "custom"}
+              value={
+                settings.apiModel === "gpt-4o" ||
+                settings.apiModel === "gpt-4o-mini"
+                  ? settings.apiModel
+                  : "custom"
+              }
               onChange={(value: string) =>
-                setSettings({ ...settings, apiModel: value === "custom" ? "" : value })
+                setSettings({
+                  ...settings,
+                  apiModel: value === "custom" ? "" : value,
+                })
               }
               options={[
                 { label: "gpt-4o", value: "gpt-4o" },
@@ -128,15 +158,16 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                 { label: "自定义", value: "custom" },
               ]}
             />
-            {(settings.apiModel !== "gpt-4o" && settings.apiModel !== "gpt-4o-mini") && (
-              <Input
-                value={settings.apiModel}
-                onChange={(e) =>
-                  setSettings({ ...settings, apiModel: e.target.value })
-                }
-                placeholder="输入你的 API Model"
-              />
-            )}
+            {settings.apiModel !== "gpt-4o" &&
+              settings.apiModel !== "gpt-4o-mini" && (
+                <Input
+                  value={settings.apiModel}
+                  onChange={(e) =>
+                    setSettings({ ...settings, apiModel: e.target.value })
+                  }
+                  placeholder="输入你的 API Model"
+                />
+              )}
           </Space.Compact>
         </Form.Item>
 

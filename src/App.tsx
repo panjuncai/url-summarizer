@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { toast, Toaster } from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
@@ -7,6 +7,12 @@ import rehypeRaw from "rehype-raw";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { SettingOutlined, FileTextOutlined } from "@ant-design/icons";
 import { Button, Modal, Tabs, Input, Spin } from "antd";
+import { Store } from "@tauri-apps/plugin-store";
+interface Settings {
+  defaultTab: string
+}
+
+let store: Store | null = null;
 
 function App() {
   const [url, setUrl] = useState("");
@@ -16,6 +22,30 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [inputType, setInputType] = useState("url"); // 'url' or 'text'
+  const [settings, setSettings] = useState<Settings>({
+    defaultTab: "url"
+  });
+  useEffect(() => {
+      initializeStore();
+  }, [isSettingsOpen]);
+  
+  async function initializeStore() {
+    if (!store) {
+      store = await Store.load("settings.json");
+    }
+    await loadSettings();
+  }
+
+  async function loadSettings() {
+    try {
+      if (!store) return;
+      const defaultTab = ((await store.get("defaultTab")) as string) || "url";
+      setSettings({ defaultTab });
+    } catch (error) {
+      console.error("加载设置失败:", error);
+      toast.error("加载设置失败");
+    }
+  }
 
   const handleSummarize = async () => {
     if (inputType === "url") {
@@ -65,6 +95,7 @@ function App() {
       <div className="flex-1 flex flex-col pl-6 pr-6 pt-2 pb-2 overflow-hidden">
         <div className="bg-white rounded-lg p-2 mb-2 shadow-sm">
           <Tabs
+            activeKey={settings.defaultTab}
             onChange={(key) => {
               setInputType(key as "url" | "text");
               setSummary("");
@@ -73,7 +104,7 @@ function App() {
             items={[
               {
                 key: "url",
-                label: "网址摘要",
+                label: "网址",
                 children: (
                   <div className="flex gap-2 items-center justify-center">
                     <Input
@@ -97,7 +128,7 @@ function App() {
               },
               {
                 key: "text",
-                label: "文本摘要",
+                label: "文本",
                 children: (
                   <div className="flex gap-2 items-center justify-center">
                     <Input.TextArea
@@ -180,7 +211,7 @@ function App() {
                 {summary}
               </ReactMarkdown>
             ) : (
-              <p className="text-gray-500 italic">摘要结果...</p>
+              <p className="text-gray-500 italic">结果...</p>
             )}
           </div>
         </div>
