@@ -70,6 +70,26 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
   async function handleSave() {
     try {
       if (!store) return;
+      if (settings.apiKey === "") {
+        toast.error("API Key 不能为空");
+        return;
+      }
+      if (settings.apiModel === "") {
+        toast.error("API Model 不能为空");
+        return;
+      }
+      if (settings.apiUrl === "") {
+        toast.error("API URL 不能为空");
+        return;
+      }
+      if (settings.apiPath === "") {
+        toast.error("API Path 不能为空");
+        return;
+      }
+      if (settings.apiScript.length === 0) {
+        toast.error("提示词不能为空");
+        return;
+      }
       await store.set("defaultTab", settings.defaultTab);
       await store.set("apiKey", settings.apiKey);
       await store.set("apiModel", settings.apiModel);
