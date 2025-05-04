@@ -18,7 +18,12 @@
   - 多种预设模型选择
   - 支持自定义模型
   - 可配置 API 设置
+  - 支持多个自定义提示词
 - 🌐 支持自定义 API 端点
+- 📝 灵活的提示词管理
+  - 默认提示词（摘要生成）
+  - 动态添加自定义提示词
+  - 快速切换不同提示词
 
 ### 技术栈
 
@@ -69,7 +74,10 @@ pnpm tauri build
   - 支持输入自定义模型
 - API URL：API 的基础 URL
 - API Path：API 的具体路径
-- 提示词：自定义 AI 的行为提示
+- 提示词管理：
+  - 默认提示词：系统预设的摘要生成提示词
+  - 自定义提示词：可动态添加、删除多个提示词
+  - 快速切换：在主界面可快速切换不同提示词
 
 ---
 
@@ -89,7 +97,12 @@ A web content summarization tool built with Tauri + React + TypeScript, supporti
   - Multiple preset models
   - Custom model support
   - Configurable API settings
+  - Multiple custom prompts support
 - 🌐 Custom API endpoint support
+- 📝 Flexible Prompt Management
+  - Default prompt (for summarization)
+  - Dynamic custom prompts
+  - Quick prompt switching
 
 ### Tech Stack
 
@@ -140,4 +153,7 @@ Click the ⚙️ icon in the bottom right corner to configure:
   - Support for custom models
 - API URL: Base URL for the API
 - API Path: Specific path for the API endpoint
-- Prompt: Custom AI behavior prompt
+- Prompt Management:
+  - Default prompt: System preset for summarization
+  - Custom prompts: Add and remove multiple prompts dynamically
+  - Quick switch: Switch between different prompts in the main interface
