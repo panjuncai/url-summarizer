@@ -5,8 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { SettingsDialog } from "./components/SettingsDialog";
-import { SetOutline, TextOutline } from "antd-mobile-icons";
-import { Button, Modal, Tabs, TextArea } from "antd-mobile";
+import { SettingOutlined, FileTextOutlined } from "@ant-design/icons";
+import { Button, Modal, Tabs, Input } from "antd";
 
 function App() {
   const [url, setUrl] = useState("");
@@ -63,59 +63,68 @@ function App() {
     <div className="flex flex-col h-screen w-full bg-gray-50">
       <Toaster position="top-center" />
       <div className="flex-1 flex flex-col pl-6 pr-6 pt-2 pb-2 overflow-hidden">
-        <div className="bg-white rounded-lg pl-2 pr-2 mb-2 shadow-sm">
+        <div className="bg-white rounded-lg p-2 mb-2 shadow-sm">
           <Tabs
             onChange={(key) => {
               setInputType(key as "url" | "text");
               setSummary("");
               setOriginalContent("");
             }}
-          >
-            <Tabs.Tab title="网址摘要" key="url">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="请输入网页链接..."
-                  className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                <Button onClick={() => setUrl("")} fill="outline">
-                  清除
-                </Button>
-                <Button
-                  onClick={handleSummarize}
-                  color="primary"
-                  loading={loading}
-                >
-                  {loading ? "正在总结" : "开始总结"}
-                </Button>
-              </div>
-            </Tabs.Tab>
-            <Tabs.Tab title="文本摘要" key="text">
-              <div className="flex gap-2">
-                <TextArea
-                  value={text}
-                  onChange={(val) => setText(val)}
-                  placeholder="请输入要总结的文本内容..."
-                  rows={2}
-                  className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                <div className="flex justify-end gap-4">
-                  <Button onClick={() => setText("")} fill="outline">
-                    清除
-                  </Button>
-                  <Button
-                    onClick={handleSummarize}
-                    color="primary"
-                    loading={loading}
-                  >
-                    {loading ? "正在总结" : "开始总结"}
-                  </Button>
-                </div>
-              </div>
-            </Tabs.Tab>
-          </Tabs>
+            items={[
+              {
+                key: "url",
+                label: "网址摘要",
+                children: (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="请输入网页链接..."
+                      className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <Button onClick={() => setUrl("")} type="default">
+                      清除
+                    </Button>
+                    <Button
+                      onClick={handleSummarize}
+                      type="primary"
+                      loading={loading}
+                    >
+                      {loading ? "正在总结" : "开始总结"}
+                    </Button>
+                  </div>
+                ),
+              },
+              {
+                key: "text",
+                label: "文本摘要",
+                children: (
+                  <div className="flex gap-2">
+                    <Input.TextArea
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      placeholder="请输入要总结的文本内容..."
+                      rows={2}
+                      className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <div className="flex justify-end gap-4">
+                      <Button onClick={() => setText("")} type="default">
+                        清除
+                      </Button>
+                      <Button
+                        onClick={handleSummarize}
+                        type="primary"
+                        loading={loading}
+                      >
+                        {loading ? "正在总结" : "开始总结"}
+                      </Button>
+                    </div>
+                  </div>
+                ),
+              },
+            ]}
+          />
         </div>
 
         <div className="flex-1 bg-white rounded-lg pl-2 pr-2 shadow-md overflow-auto">
@@ -181,10 +190,10 @@ function App() {
         <div className="flex item-center gap-2 hover:cursor-pointer" onClick={() =>
               Modal.confirm({
                 title: '原始内容',
-                content: <div>{originalContent?originalContent:'原始内容...'}</div>,
+                content: <div>{originalContent || '原始内容...'}</div>,
               })
             }>
-          <TextOutline fontSize={18} />
+          <FileTextOutlined style={{ fontSize: 18 }} />
           <div className="text-xs text-gray-500">原始内容</div>
         </div>
         <div className="flex items-center gap-2">
@@ -194,7 +203,7 @@ function App() {
             className="text-gray-600 hover:text-gray-800"
             title="设置"
           >
-            <SetOutline fontSize={18} />
+            <SettingOutlined style={{ fontSize: 18 }} />
           </button>
         </div>
 
