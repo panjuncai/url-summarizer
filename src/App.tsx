@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { SettingOutlined, FileTextOutlined } from "@ant-design/icons";
-import { Button, Modal, Tabs, Input } from "antd";
+import { Button, Modal, Tabs, Input, Spin } from "antd";
 
 function App() {
   const [url, setUrl] = useState("");
@@ -75,13 +75,12 @@ function App() {
                 key: "url",
                 label: "网址摘要",
                 children: (
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
+                  <div className="flex gap-2 items-center justify-center">
+                    <Input
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
                       placeholder="请输入网页链接..."
-                      className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      className="flex-1"
                     />
                     <Button onClick={() => setUrl("")} type="default">
                       清除
@@ -100,13 +99,12 @@ function App() {
                 key: "text",
                 label: "文本摘要",
                 children: (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center justify-center">
                     <Input.TextArea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                       placeholder="请输入要总结的文本内容..."
-                      rows={2}
-                      className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      rows={4}
                     />
                     <div className="flex justify-end gap-4">
                       <Button onClick={() => setText("")} type="default">
@@ -129,57 +127,61 @@ function App() {
 
         <div className="flex-1 bg-white rounded-lg pl-2 pr-2 shadow-md overflow-auto">
           <div className="p-4 prose prose-sm sm:prose lg:prose-lg xl:prose-xl mx-auto">
-          {summary ? (
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
-                    components={{
-                      h1: ({ node, ...props }) => (
-                        <h1 {...props} className="text-2xl font-bold mb-4" />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <h2 {...props} className="text-xl font-bold mb-3" />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <h3 {...props} className="text-lg font-bold mb-2" />
-                      ),
-                      p: ({ node, ...props }) => (
-                        <p {...props} className="mb-4 leading-relaxed" />
-                      ),
-                      ul: ({ node, ...props }) => (
-                        <ul {...props} className="list-disc ml-6 mb-4" />
-                      ),
-                      ol: ({ node, ...props }) => (
-                        <ol {...props} className="list-decimal ml-6 mb-4" />
-                      ),
-                      li: ({ node, ...props }) => (
-                        <li {...props} className="mb-1" />
-                      ),
-                      blockquote: ({ node, ...props }) => (
-                        <blockquote
-                          {...props}
-                          className="border-l-4 border-gray-200 pl-4 italic my-4"
-                        />
-                      ),
-                      code: ({ node, ...props }) => (
-                        <code
-                          {...props}
-                          className="bg-gray-100 rounded px-1 py-0.5"
-                        />
-                      ),
-                      pre: ({ node, ...props }) => (
-                        <pre
-                          {...props}
-                          className="bg-gray-100 rounded p-4 overflow-auto my-4"
-                        />
-                      ),
-                    }}
-                  >
-                    {summary}
-                  </ReactMarkdown>
-                ) : (
-                  <p className="text-gray-500 italic">摘要结果...</p>
-                )}
+            {loading ? (
+              <Spin tip="Loading" size="large">
+                正在总结...
+              </Spin>
+            ) : summary ? (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                  h1: ({ node, ...props }) => (
+                    <h1 {...props} className="text-2xl font-bold mb-4" />
+                  ),
+                  h2: ({ node, ...props }) => (
+                    <h2 {...props} className="text-xl font-bold mb-3" />
+                  ),
+                  h3: ({ node, ...props }) => (
+                    <h3 {...props} className="text-lg font-bold mb-2" />
+                  ),
+                  p: ({ node, ...props }) => (
+                    <p {...props} className="mb-4 leading-relaxed" />
+                  ),
+                  ul: ({ node, ...props }) => (
+                    <ul {...props} className="list-disc ml-6 mb-4" />
+                  ),
+                  ol: ({ node, ...props }) => (
+                    <ol {...props} className="list-decimal ml-6 mb-4" />
+                  ),
+                  li: ({ node, ...props }) => (
+                    <li {...props} className="mb-1" />
+                  ),
+                  blockquote: ({ node, ...props }) => (
+                    <blockquote
+                      {...props}
+                      className="border-l-4 border-gray-200 pl-4 italic my-4"
+                    />
+                  ),
+                  code: ({ node, ...props }) => (
+                    <code
+                      {...props}
+                      className="bg-gray-100 rounded px-1 py-0.5"
+                    />
+                  ),
+                  pre: ({ node, ...props }) => (
+                    <pre
+                      {...props}
+                      className="bg-gray-100 rounded p-4 overflow-auto my-4"
+                    />
+                  ),
+                }}
+              >
+                {summary}
+              </ReactMarkdown>
+            ) : (
+              <p className="text-gray-500 italic">摘要结果...</p>
+            )}
           </div>
         </div>
       </div>
@@ -187,12 +189,15 @@ function App() {
       {/* 底部配置栏 */}
 
       <div className="h-8 bg-gray-100 border-t border-gray-200 flex items-center px-4 justify-between gap-2">
-        <div className="flex item-center gap-2 hover:cursor-pointer" onClick={() =>
-              Modal.confirm({
-                title: '原始内容',
-                content: <div>{originalContent || '原始内容...'}</div>,
-              })
-            }>
+        <div
+          className="flex item-center gap-2 hover:cursor-pointer"
+          onClick={() =>
+            Modal.info({
+              title: "原始内容",
+              content: <div>{originalContent}</div>,
+            })
+          }
+        >
           <FileTextOutlined style={{ fontSize: 18 }} />
           <div className="text-xs text-gray-500">原始内容</div>
         </div>
