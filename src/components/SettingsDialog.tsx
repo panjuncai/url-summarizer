@@ -90,6 +90,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       title="系统设置"
       open={isOpen}
       onCancel={onClose}
+      maskClosable={false}
       footer={[
         <Button key="cancel" onClick={onClose}>
           取消
@@ -100,7 +101,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       ]}
     >
       <Form layout="horizontal" labelCol={{ span: 4 }}>
-        <Form.Item label="默认标签">
+        <Form.Item label="默认标签" required>
           <Radio.Group
             value={settings.defaultTab}
             onChange={(e) =>
@@ -118,7 +119,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
             ]}
           />
         </Form.Item>
-        <Form.Item label="API Key">
+        <Form.Item label="API Key" required>
           <div className="relative">
             <Input
               type={showApiKey ? "text" : "password"}
@@ -138,7 +139,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           </div>
         </Form.Item>
 
-        <Form.Item label="API Model">
+        <Form.Item label="API Model" required>
           <Space.Compact block>
             <Select
               value={
@@ -172,7 +173,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           </Space.Compact>
         </Form.Item>
 
-        <Form.Item label="API URL">
+        <Form.Item label="API URL" required>
           <Input
             value={settings.apiUrl}
             onChange={(e) =>
@@ -182,7 +183,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           />
         </Form.Item>
 
-        <Form.Item label="API Path">
+        <Form.Item label="API Path" required>
           <Input
             value={settings.apiPath}
             onChange={(e) =>

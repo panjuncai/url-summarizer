@@ -258,6 +258,7 @@ function App() {
               onClick={() =>
                 Modal.info({
                   title: "原始内容",
+                  maskClosable: true,
                   content: <div>{originalContent}</div>,
                 })
               }
