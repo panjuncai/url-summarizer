@@ -171,18 +171,6 @@ function App() {
                 ) : (
                   <p className="text-gray-500 italic">摘要结果...</p>
                 )}
-            {/* <Tabs>
-              <Tabs.Tab title="摘要" key="summary">
-                
-              </Tabs.Tab>
-              <Tabs.Tab title="原始内容" key="original">
-                {originalContent ? (
-                  <div className="whitespace-pre-wrap">{originalContent}</div>
-                ) : (
-                  <p className="text-gray-500 italic">原始内容...</p>
-                )}
-              </Tabs.Tab>
-            </Tabs> */}
           </div>
         </div>
       </div>
