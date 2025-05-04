@@ -13,6 +13,7 @@ interface Settings {
   apiModel: string
   apiUrl: string
   apiPath: string
+  apiScript: string
 }
 
 let store: Store | null = null;
@@ -22,7 +23,8 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
     apiKey: '',
     apiModel: 'gpt-4o-mini',
     apiUrl: 'https://api.openai.com',
-    apiPath: '/v1/chat/completions'
+    apiPath: '/v1/chat/completions',
+    apiScript: '你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。'
   })
   const [showApiKey, setShowApiKey] = useState(false)
 
@@ -46,7 +48,8 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       const apiModel = (await store.get('apiModel')) as string || 'gpt-4o-mini'
       const apiUrl = (await store.get('apiUrl')) as string || 'https://api.openai.com'
       const apiPath = (await store.get('apiPath')) as string || '/v1/chat/completions'
-      setSettings({ apiKey, apiModel, apiUrl, apiPath })
+      const apiScript = (await store.get('apiScript')) as string || '你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。'
+      setSettings({ apiKey, apiModel, apiUrl, apiPath, apiScript })
     } catch (error) {
       console.error('加载设置失败:', error)
       toast.error('加载设置失败')
@@ -60,6 +63,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       await store.set('apiModel', settings.apiModel)
       await store.set('apiUrl', settings.apiUrl)
       await store.set('apiPath', settings.apiPath)
+      await store.set('apiScript', settings.apiScript)
       await store.save()
       toast.success('设置已保存')
       onClose()
@@ -137,6 +141,16 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
               onChange={e => setSettings({...settings, apiPath: e.target.value})}
               className="w-full border rounded p-2"
               placeholder="API 路径"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">话术</label>
+            <textarea
+              value={settings.apiScript}
+              onChange={e => setSettings({...settings, apiScript: e.target.value})}
+              className="w-full border rounded p-2"
+              placeholder="话术"
             />
           </div>
         </div>
