@@ -45,9 +45,6 @@ function App() {
     <div className="flex flex-col h-screen w-full bg-gray-50">
       <Toaster position="top-center" />
       <div className="flex-1 flex flex-col p-6 overflow-hidden">
-        {/* <h1 className="text-2xl font-bold mb-6 text-center">
-          🌐 URL 智能摘要工具
-        </h1> */}
         <div className="flex gap-4 mb-6">
           <input
             type="text"
@@ -71,7 +68,7 @@ function App() {
             {loading ? "正在总结" : "开始总结"}
           </Button>
         </div>
-        <div className="flex-1 bg-white rounded-lg p-6 shadow-md overflow-auto">
+        <div className="flex-1 bg-white rounded-lg pl-6 pr-6 shadow-md overflow-auto">
           <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl mx-auto">
             <Tabs>
               <Tabs.Tab title='摘要' key='summary'>

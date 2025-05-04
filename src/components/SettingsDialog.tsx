@@ -99,13 +99,23 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           <div>
             <label className="block text-sm font-medium mb-1">API Model</label>
             <select
-              value={settings.apiModel}
+              value={settings.apiModel === "gpt-4o" || settings.apiModel === "gpt-4o-mini" ? settings.apiModel : ""}
               onChange={e => setSettings({...settings, apiModel: e.target.value})}
               className="w-full border rounded p-2"
             >
-              <option value="gpt-4o">GPT-4o</option>
-              <option value="gpt-4o-mini">GPT-4o Mini</option>
+              <option value="gpt-4o">gpt-4o</option>
+              <option value="gpt-4o-mini">gpt-4o-mini</option>
+              <option value="">自定义</option>
             </select>
+            {(settings.apiModel !== "gpt-4o" && settings.apiModel !== "gpt-4o-mini") && (
+              <input
+                type="text"
+                value={settings.apiModel}
+                onChange={e => setSettings({...settings, apiModel: e.target.value})}
+                className="w-full border rounded p-2 mt-2"
+                placeholder="输入你的 API Model"
+              />
+            )}
           </div>
 
           <div>
