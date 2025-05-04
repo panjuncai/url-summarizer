@@ -15,7 +15,7 @@ interface Settings {
   apiModel: string;
   apiUrl: string;
   apiPath: string;
-  apiScript: string;
+  apiScript: string[];
 }
 
 let store: Store | null = null;
@@ -27,8 +27,9 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
     apiModel: "gpt-4o-mini",
     apiUrl: "https://api.openai.com",
     apiPath: "/v1/chat/completions",
-    apiScript:
+    apiScript: [
       "你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。",
+    ],
   });
   const [showApiKey, setShowApiKey] = useState(false);
 
@@ -57,8 +58,8 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
       const apiPath =
         ((await store.get("apiPath")) as string) || "/v1/chat/completions";
       const apiScript =
-        ((await store.get("apiScript")) as string) ||
-        "你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。";
+        ((await store.get("apiScript")) as string[]) ||
+        ["你是一个专业的信息摘要助手，我给你提供待总结的内容，内容可能是各种语言。请将内容进行总结，突出重点和难点，并以中文的Markdown格式返回。"];
       setSettings({ defaultTab, apiKey, apiModel, apiUrl, apiPath, apiScript });
     } catch (error) {
       console.error("加载设置失败:", error);
@@ -191,11 +192,21 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
           />
         </Form.Item>
 
-        <Form.Item label="提示词">
+        <Form.Item label="提示词1">
           <Input.TextArea
-            value={settings.apiScript}
+            value={settings.apiScript[0]}
             onChange={(e) =>
-              setSettings({ ...settings, apiScript: e.target.value })
+              setSettings({ ...settings, apiScript: [e.target.value, settings.apiScript[1]] })
+            }
+            placeholder="请输入提示词..."
+            rows={2}
+          />
+        </Form.Item>
+        <Form.Item label="提示词2">
+          <Input.TextArea
+            value={settings.apiScript[1]}
+            onChange={(e) =>
+              setSettings({ ...settings, apiScript: [settings.apiScript[0], e.target.value] })
             }
             placeholder="请输入提示词..."
             rows={2}

@@ -41,6 +41,7 @@ function App() {
       if (!store) return;
       const defaultTab = ((await store.get("defaultTab")) as string) || "url";
       setSettings({ defaultTab });
+      setInputType(defaultTab);
     } catch (error) {
       console.error("加载设置失败:", error);
       toast.error("加载设置失败");
@@ -55,7 +56,7 @@ function App() {
       }
     } else {
       if (!text.trim()) {
-        toast.error("请输入要总结的文本内容");
+        toast.error("请输入要执行的文本内容");
         return;
       }
     }
@@ -95,7 +96,7 @@ function App() {
       <div className="flex-1 flex flex-col pl-6 pr-6 pt-2 pb-2 overflow-hidden">
         <div className="bg-white rounded-lg p-2 mb-2 shadow-sm">
           <Tabs
-            activeKey={settings.defaultTab}
+            activeKey={inputType}
             onChange={(key) => {
               setInputType(key as "url" | "text");
               setSummary("");
@@ -121,7 +122,7 @@ function App() {
                       type="primary"
                       loading={loading}
                     >
-                      {loading ? "正在总结" : "开始总结"}
+                      {loading ? "执行中" : "开始"}
                     </Button>
                   </div>
                 ),
@@ -134,7 +135,7 @@ function App() {
                     <Input.TextArea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
-                      placeholder="请输入要总结的文本内容..."
+                      placeholder="请输入要执行的文本内容..."
                       rows={4}
                     />
                     <div className="flex justify-end gap-4">
@@ -146,7 +147,7 @@ function App() {
                         type="primary"
                         loading={loading}
                       >
-                        {loading ? "正在总结" : "开始总结"}
+                        {loading ? "执行中" : "开始"}
                       </Button>
                     </div>
                   </div>
@@ -160,7 +161,7 @@ function App() {
           <div className="p-4 prose prose-sm sm:prose lg:prose-lg xl:prose-xl mx-auto">
             {loading ? (
               <Spin tip="Loading" size="large">
-                正在总结...
+                执行中...
               </Spin>
             ) : summary ? (
               <ReactMarkdown
