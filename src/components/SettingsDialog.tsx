@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Store } from '@tauri-apps/plugin-store'
 import { toast } from 'react-hot-toast'
+import { EyeInvisibleOutline, EyeOutline } from 'antd-mobile-icons'
 
 interface SettingsDialogProps {
   isOpen: boolean
@@ -90,7 +91,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                 onClick={() => setShowApiKey(!showApiKey)}
                 className="absolute right-2 top-1/2 -translate-y-1/2"
               >
-                {showApiKey ? "👁️" : "👁️‍🗨️"}
+                {showApiKey ? <EyeInvisibleOutline /> : <EyeOutline />}
               </button>
             </div>
           </div>

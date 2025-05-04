@@ -5,6 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { SettingsDialog } from './components/SettingsDialog'
+import { SetOutline } from 'antd-mobile-icons'
+import { Button } from 'antd-mobile'
 
 function App() {
   const [url, setUrl] = useState("");
@@ -47,19 +49,20 @@ function App() {
             placeholder="请输入网页链接..."
             className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          <button
+          <Button
             onClick={() => setUrl("")}
-            className="px-6 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition whitespace-nowrap"
+            fill='outline'
           >
             清除
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSummarize}
-            className="px-6 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition whitespace-nowrap"
-            disabled={loading}
+            color='primary'
+            loading={loading}
+            loadingText="正在总结"
           >
-            {loading ? "⏳ 正在总结..." : "开始总结"}
-          </button>
+            {loading ? "正在总结" : "开始总结"}
+          </Button>
         </div>
         <div className="flex-1 bg-white rounded-lg p-6 shadow-md overflow-auto">
           <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl mx-auto">
@@ -105,7 +108,7 @@ function App() {
           className="text-gray-600 hover:text-gray-800"
           title="设置"
         >
-          ⚙️
+          <SetOutline  fontSize={18}/>
         </button>
       </div>
 
