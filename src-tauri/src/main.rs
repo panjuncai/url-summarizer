@@ -168,7 +168,7 @@ async fn summarize_with_ai<R: Runtime>(app: tauri::AppHandle<R>, content: &str) 
 }
 
 #[command]
-async fn fetch_url_main_content<R: Runtime>(app: tauri::AppHandle<R>, url: String) -> Result<String, String> {
+async fn fetch_url_main_content<R: Runtime>(_app: tauri::AppHandle<R>, url: String) -> Result<String, String> {
     dotenv().ok();
 
     let client = Client::new();
@@ -191,17 +191,20 @@ async fn fetch_url_main_content<R: Runtime>(app: tauri::AppHandle<R>, url: Strin
         clean_content(content)
     }).await.map_err(|e| FetchError::Unknown(e.to_string()).to_user_message())?;
 
-    let summary = summarize_with_ai(app, &cleaned_content)
-        .await
-        .map_err(|e| e.to_user_message())?;
+    Ok(cleaned_content)
+}
 
-    Ok(summary)
+#[command]
+async fn generate_summary<R: Runtime>(app: tauri::AppHandle<R>, content: String) -> Result<String, String> {
+    summarize_with_ai(app, &content)
+        .await
+        .map_err(|e| e.to_user_message())
 }
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![fetch_url_main_content])
+        .invoke_handler(tauri::generate_handler![fetch_url_main_content, generate_summary])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
